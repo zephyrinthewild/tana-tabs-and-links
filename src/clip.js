@@ -11,58 +11,20 @@ export function clipHTML(html) {
   // grab the basic info from the page
   const title = document.title;
   const url = window.location.href;
-  let description = "";
+  // let description = "";
+
+  // Extract the domain from the URL
+  const domain = new URL(url).hostname;
+
+  // Fetch the site name from the meta tag if it exists
+  const metaSiteName = document.querySelector('meta[property="og:site_name"]');
+  const siteName = metaSiteName ? metaSiteName.getAttribute('content') : domain;
 
   // basic format of a tana-paste entry
-  let data = `%%tana%%\n- ${title} #website`;
+  // let data = `%%tana%%\n- ${title} #website`;
+  let data = `%%tana%%\n- ${title} [view in ${siteName}](${url}) #link`;
 
-  let fields = [];
-  fields.push(`\n  - Url:: ${url}`);
 
-  const metaTags = document.querySelectorAll("meta");
-
-  for (const element of metaTags) {
-    if (element.name === "description") {
-      description = element.content;
-      fields.push("\n  - Description:: " + description);
-    } else {
-      let property = element.getAttribute("property");
-      let content = element.content;
-      if (property === "og:description") {
-        // no point in duplicating the description
-        if (content != description) {
-          fields.push("\n  - og:Description:: " + content);
-        }
-      }
-      if (property === "og:title") {
-        // no point in duplicating the title
-        if (content !== title) {
-          fields.push("\n  - og:Title:: " + content);
-        }
-      }
-      if (property === "og:url") {
-        // no point in duplicating the url
-        if (content != url) {
-          fields.push("\n  - og:Url:: " + content);
-        }
-      }
-      if (property === "og:type") {
-        fields.push("\n  - og:Type:: " + content);
-      }
-      if (property === "og:image") {
-        fields.push("\n  - og:Image:: " + content);
-      }
-
-      if (property === "og:site_name") {
-        fields.push("\n  - og:Site:: " + content);
-      }
-    }
-  }
-
-  fields.forEach((field) => {
-    console.log(field);
-    data += field;
-  });
 
   // do we have selected text as well?
   if (html) {

@@ -1,17 +1,21 @@
 {
-    "name": "__MSG_appName__",
-    "short_name": "__MSG_appShortName__",
-    "description": "__MSG_appDescription__",
-    "homepage_url": "http://chrome.google.com/webstore",
-    "version": "0.0.1",
-    "version_name": "0.0.1",
+    "name": "tana-tabs-and-links",
+    "short_name": "tana-tabs-and-links",
+    "description": "Renames tana tabs for a multitab experience, clips current webpage and selection to tana-paste format, and handles tana links",
+    "homepage_url": "https://tana.pub/2zNR04BRXwl9/simple-browser-multi-tab-experience-for-tana",
+    "version": "0.0.6",
+    "version_name": "0.0.6",
     "manifest_version": 3,
     "default_locale": "en",
     "minimum_chrome_version": "88",
+    "host_permissions": ["https://app.tana.inc/"],
     "permissions": [
         "scripting",
         "activeTab",
-        "clipboardWrite"
+        "clipboardWrite",
+        "clipboardRead",
+        "contextMenus",
+        "tabs"
     ],
     "icons": {
         "128": "assets/img/clip2tana-128.png"
@@ -30,11 +34,12 @@
         "service_worker": "background.js"
     },
     "commands": {
-        "_execute_action": {
+        "open-tana-url": {
             "suggested_key": {
-                "default": "Ctrl+Shift+K",
-                "mac": "Command+Shift+K"
-            }
+                "default": "Alt+Shift+T",
+                "mac": "Alt+Shift+T"
+            },
+            "description": "Open Tana URL from clipboard"
         }
     }
 }

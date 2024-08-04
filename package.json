@@ -1,12 +1,12 @@
 {
-    "name": "clip2tana",
-    "description": "Clips current webpage and selection to tana-paste format",
-    "version": "0.0.1",
-    "homepage": "https://github.com/verveguy/clip2tana",
-    "author": "Brett Adam",
+    "name": "tana-tabs-and-links",
+    "description": "Renames tana tabs for a multitab experience, clips current webpage and selection to tana-paste format, and handles tana links",
+    "version": "0.0.6",
+    "homepage": "https://tana.pub/2zNR04BRXwl9/simple-browser-multi-tab-experience-for-tana",
+    "author": "Zephyr",
     "repository": {
         "type": "git",
-        "url": "ENTER GIT REPO URL"
+        "url": "https://github.com/zephyrinthewild/tana-tabs-and-links.git"
     },
     "scripts": {
         "start": "xt-build -e dev -w",
