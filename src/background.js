@@ -41,48 +41,35 @@ chrome.runtime.onInstalled.addListener(() => {
   });
 });
 
-// Object to store interval IDs for each tab
-const activeTabIntervals = {};
+// Set of active tab IDs being tracked
+const activeTabs = new Set();
 
 // Define a function to periodically check and update tab title
 function checkAndUpdateTabTitle(tabId) {
-  // Check if an interval is already running for this tab
-  if (activeTabIntervals[tabId]) {
-    console.log(`Tab ${tabId} is already being tracked.`);
-    return;
-  }
-
   chrome.scripting.executeScript({
     target: { tabId: tabId },
     func: () => {
-      const intervalId = setInterval(() => {
-        const titleElement = document.querySelector('.NodePanelHeader-module_breadcrumbsAndTitle__H0Jfe h1[class^="NodePanelHeaderTitle-module_heading__"] span.editable');
-        if (titleElement) {
-          const newTitle = titleElement.textContent.trim();
-          document.title = newTitle; // Update the tab title
-          console.log("Updated tab title:", newTitle);
-        } else {
-          console.log("Title element not found.");
-        }
-      }, 2000); // 2000 milliseconds = 2 seconds
-
-      // Store the interval ID in the window object for access outside the injected script
-      window.intervalId = intervalId;
+      // Only run the interval if it's not already running
+      if (!window.isTracking) {
+        window.isTracking = true;
+        const intervalId = setInterval(() => {
+          const titleElement = document.querySelector('.NodePanelHeader-module_breadcrumbsAndTitle__H0Jfe h1[class^="NodePanelHeaderTitle-module_heading__"] span.editable');
+          if (titleElement) {
+            const newTitle = titleElement.textContent.trim();
+            document.title = newTitle; // Update the tab title
+            console.log("Updated tab title:", newTitle);
+          } else {
+            console.log("Title element not found.");
+          }
+        }, 2000); // 2000 milliseconds = 2 seconds
+        window.trackingIntervalId = intervalId;
+      }
     }
-  }, (injectionResults) => {
+  }, () => {
     if (chrome.runtime.lastError) {
       console.error("Script execution failed:", chrome.runtime.lastError.message);
     } else {
-      // Retrieve intervalId from the injected script
-      chrome.scripting.executeScript({
-        target: { tabId: tabId },
-        func: () => window.intervalId,
-      }, (results) => {
-        if (results && results[0]) {
-          activeTabIntervals[tabId] = results[0].result; // Store interval ID
-          console.log(`Tracking started for tab ${tabId}. Interval ID: ${results[0].result}`);
-        }
-      });
+      console.log(`Tracking started for tab ${tabId}.`);
     }
   });
 }
@@ -94,13 +81,21 @@ chrome.tabs.onActivated.addListener((activeInfo) => {
       console.log("Tab activated:", tab);
       if (tab.url && tab.url.startsWith('https://app.tana.inc')) {
         console.log(`Activated tab ${tab.id} (${tab.title}) matches criteria.`);
-        checkAndUpdateTabTitle(tab.id);
+        // Check if this tab is already being tracked
+        if (activeTabs.has(tab.id)) {
+          console.log(`Tab ${tab.id} is already being tracked.`);
+        } else {
+          activeTabs.add(tab.id);
+          console.log(`Added tab ${tab.id} to activeTabs set.`);
+          checkAndUpdateTabTitle(tab.id);
+        }
       } else {
         console.log(`Activated tab ${tab.id} (${tab.title}) does not match criteria yet.`);
       }
     });
   }, 4000); // Wait for 4 seconds before checking and updating
 });
+
 
 // Handle the context menu click
 chrome.contextMenus.onClicked.addListener((info, tab) => {
